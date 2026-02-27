@@ -1,0 +1,11 @@
+---
+# Default VLANs if none are specified
+vlans:
+  - id: 10
+    name: Management
+  - id: 20
+    name: Finance
+  - id: 30
+    name: Guest
+  - id: 40
+    name: IoT

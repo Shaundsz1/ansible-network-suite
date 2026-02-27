@@ -1,0 +1,12 @@
+---
+- name: Base Configuration - Cisco Cat8k
+  hosts: cisco_routers
+  gather_facts: no
+  roles:
+    - base_config
+
+- name: VLAN Management - Nexus 9000
+  hosts: nexus_switches
+  gather_facts: no
+  roles:
+    - vlan_manager

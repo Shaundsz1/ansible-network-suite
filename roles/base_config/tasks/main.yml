@@ -1,0 +1,27 @@
+---
+- name: Set device hostname
+  cisco.ios.ios_hostname:
+    config:
+      hostname: "{{ device_hostname }}"
+    state: merged
+
+- name: Configure DNS servers
+  cisco.ios.ios_system:
+    name_servers:
+      - "{{ dns_server_primary }}"
+      - "{{ dns_server_secondary }}"
+    state: present
+
+- name: Set login banner
+  cisco.ios.ios_banner:
+    banner: login
+    text: "{{ login_banner }}"
+    state: present
+
+- name: Configure interface descriptions
+  cisco.ios.ios_interfaces:
+    config:
+      - name: "{{ item.key }}"
+        description: "{{ item.value.description }}"
+    state: merged
+  loop: "{{ interfaces | dict2items }}"

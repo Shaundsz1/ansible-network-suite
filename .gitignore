@@ -1,0 +1,4 @@
+venv/
+*.retry
+inventory/hosts.ini
+network_audit_report.txt

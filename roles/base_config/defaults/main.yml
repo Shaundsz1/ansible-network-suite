@@ -1,0 +1,17 @@
+---
+# Default values for base_config role
+device_hostname: "Ansible-Managed-Device"
+dns_server_primary: "8.8.8.8"
+dns_server_secondary: "8.8.4.4"
+login_banner: |
+  ******************************************
+  *   Managed by Ansible Automation        *
+  *   Unauthorized access is prohibited    *
+  ******************************************
+interfaces:
+  GigabitEthernet1:
+    description: "Uplink - Managed by Ansible"
+  GigabitEthernet2:
+    description: "LAN - Managed by Ansible"
+  GigabitEthernet3:
+    description: "Reserved - Managed by Ansible"

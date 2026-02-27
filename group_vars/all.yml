@@ -1,0 +1,32 @@
+---
+# Device global settings
+device_hostname: Cat8kv-Ansible-Managed
+dns_server_primary: 8.8.8.8
+dns_server_secondary: 8.8.4.4
+
+# Login banner
+login_banner: |
+  ******************************************
+  *   Managed by Ansible Automation        *
+  *   Unauthorized access is prohibited    *
+  ******************************************
+
+# Interface descriptions
+interfaces:
+  GigabitEthernet1:
+    description: "Uplink - Managed by Ansible"
+  GigabitEthernet2:
+    description: "LAN - Managed by Ansible"
+  GigabitEthernet3:
+    description: "Reserved - Managed by Ansible"
+
+# VLANs to manage
+vlans:
+  - id: 10
+    name: Management
+  - id: 20
+    name: Finance
+  - id: 30
+    name: Guest
+  - id: 40
+    name: IoT

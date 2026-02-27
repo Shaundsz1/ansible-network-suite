@@ -1,0 +1,79 @@
+---
+- name: Audit Cisco Cat8k
+  hosts: cisco_routers
+  gather_facts: no
+
+  tasks:
+    - name: Gather IOS facts
+      cisco.ios.ios_facts:
+        gather_subset: all
+
+    - name: Save Cat8k audit data
+      set_fact:
+        cat8k_report:
+          hostname: "{{ ansible_net_hostname }}"
+          version: "{{ ansible_net_version }}"
+          model: "{{ ansible_net_model }}"
+          serial: "{{ ansible_net_serialnum }}"
+          interfaces: "{{ ansible_net_interfaces.keys() | list }}"
+
+- name: Audit Nexus 9000
+  hosts: nexus_switches
+  gather_facts: no
+
+  tasks:
+    - name: Gather NX-OS facts
+      cisco.nxos.nxos_facts:
+        gather_subset: all
+
+    - name: Gather VLAN state
+      cisco.nxos.nxos_vlans:
+        state: gathered
+      register: vlan_data
+
+    - name: Save Nexus audit data
+      set_fact:
+        nexus_report:
+          hostname: "{{ ansible_net_hostname }}"
+          version: "{{ ansible_net_version }}"
+          model: "{{ ansible_net_model }}"
+          vlans: "{{ vlan_data.gathered | selectattr('vlan_id', '!=', 1) | map(attribute='vlan_id') | list }}"
+
+- name: Generate Audit Report
+  hosts: localhost
+  gather_facts: yes
+
+  tasks:
+    - name: Build report content
+      set_fact:
+        report_content: |
+          ============================================
+           NETWORK AUDIT REPORT
+           Generated: {{ ansible_date_time.date }}  {{ ansible_date_time.time }}
+          ============================================
+
+          [Cisco Cat8000v]
+           Hostname   : {{ hostvars[groups['cisco_routers'][0]]['cat8k_report']['hostname'] }}
+           IOS Version: {{ hostvars[groups['cisco_routers'][0]]['cat8k_report']['version'] }}
+           Model      : {{ hostvars[groups['cisco_routers'][0]]['cat8k_report']['model'] }}
+           Serial     : {{ hostvars[groups['cisco_routers'][0]]['cat8k_report']['serial'] }}
+           Interfaces : {{ hostvars[groups['cisco_routers'][0]]['cat8k_report']['interfaces'] | join(', ') }}
+
+          [Cisco Nexus 9000]
+           Hostname   : {{ hostvars[groups['nexus_switches'][0]]['nexus_report']['hostname'] }}
+           NX-OS Ver  : {{ hostvars[groups['nexus_switches'][0]]['nexus_report']['version'] }}
+           Model      : {{ hostvars[groups['nexus_switches'][0]]['nexus_report']['model'] }}
+           Active VLANs: {{ hostvars[groups['nexus_switches'][0]]['nexus_report']['vlans'] | join(', ') }}
+
+          ============================================
+           END OF REPORT
+          ============================================
+
+    - name: Write report to file
+      copy:
+        content: "{{ report_content }}"
+        dest: "../network_audit_report.txt"
+
+    - name: Print report to screen
+      debug:
+        msg: "{{ report_content.split('\n') }}"

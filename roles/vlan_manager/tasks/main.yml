@@ -1,0 +1,20 @@
+---
+- name: Create and name VLANs
+  cisco.nxos.nxos_vlans:
+    config:
+      - vlan_id: "{{ item.id }}"
+        name: "{{ item.name }}"
+        enabled: true
+    state: merged
+  loop: "{{ vlans }}"
+
+- name: Verify VLANs exist
+  cisco.nxos.nxos_vlans:
+    state: gathered
+  register: vlan_output
+
+- name: Display configured VLANs
+  debug:
+    msg: "VLAN {{ item.vlan_id }} - {{ item.name | default('No name') }}"
+  loop: "{{ vlan_output.gathered }}"
+  when: item.vlan_id != 1
